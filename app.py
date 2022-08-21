@@ -1,5 +1,5 @@
 """Flask app for Cupcakes"""
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 from models import db, connect_db, Cupcake
 import json
 
@@ -22,6 +22,12 @@ def serialize_dessert(cupcake):
         "size": cupcake.size,
         "rating": cupcake.rating,
         "image": cupcake.image}
+@app.route("/")
+def homepage():
+    """Homepage with cupcake form and cupcake list"""
+    cupcakes = Cupcake.query.all()
+    return render_template("index.html", cupcakes=cupcakes)
+
 
 
 @app.route("/api/cupcakes")
@@ -46,12 +52,13 @@ def list_single_cupcake(cupcake_id):
 @app.route("/api/cupcakes", methods=["POST"])
 def add_cupcakes():
     """Creates a new cupcake and returns JSON of that new cupcake"""
-    flavor = request.json["flavor"]
-    size= request.json["size"]
-    rating= request.json["rating"]
-    image= request.json["image"]
-    
-    new_cup= Cupcake(flavor=flavor, size=size, rating=rating, image=image)
+    print(request.json)
+    # flavor = request.json["flavor"]
+    # size= request.json["size"]
+    # rating= request.json["rating"]
+    # image= request.json["image"]
+    new_cup= Cupcake(flavor=request.json["flavor"],size=request.json["size"],rating=request.json["rating"], image=request.json["image"])
+    # new_cup= Cupcake(flavor=flavor, size=size, rating=rating, image=image)
     db.session.add(new_cup)
     db.session.commit()
 
@@ -60,14 +67,14 @@ def add_cupcakes():
     return (jsonify(cupcake=serialized), 201)
 
 
- @app.route('/api/cupcakes/<cupcake_id>', methods=["PATCH"])
+@app.route('/api/cupcakes/<cupcake_id>', methods=["PATCH"])
 def update_cupcakes(cupcake_id):
     """Updates a particular cupcake from the list"""
     cupcake = Cupcake.query.get_or_404(cupcake_id)
     cupcake.flavor = request.json.get('flavor', cupcake.flavor)
-    cupcake.size = request.json.get('flavor', cupcake.size)
-    cupcake.rating = request.json.get('flavor', cupcake.rating)
-    cupcake.image = request.json.get('flavor', cupcake.image)
+    cupcake.size = request.json.get('size', cupcake.size)
+    cupcake.rating = request.json.get('rating', cupcake.rating)
+    cupcake.image = request.json.get('image', cupcake.image)
 
     serialized = serialize_dessert(cupcake)
     db.session.commit()
@@ -81,4 +88,6 @@ def delete_todo(cupcake_id):
     db.session.delete(cupcake)
     db.session.commit()
     return jsonify(message="deleted")
+
+
 
