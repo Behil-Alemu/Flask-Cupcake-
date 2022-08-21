@@ -57,7 +57,7 @@ def add_cupcakes():
     # size= request.json["size"]
     # rating= request.json["rating"]
     # image= request.json["image"]
-    new_cup= Cupcake(flavor=request.json["flavor"],size=request.json["size"],rating=request.json["rating"], image=request.json["image"])
+    new_cup= Cupcake(flavor=request.json.get("flavor"),size=request.json.get("size"),rating=request.json.get("rating"), image=request.json.get("image"))
     # new_cup= Cupcake(flavor=flavor, size=size, rating=rating, image=image)
     db.session.add(new_cup)
     db.session.commit()
